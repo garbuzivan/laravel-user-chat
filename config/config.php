@@ -1,0 +1,6 @@
+<?php
+// Garbuzivan\LaravelUserChat
+
+return [
+
+];
