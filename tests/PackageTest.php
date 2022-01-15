@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Garbuzivan\LaravelUserChat2\Test;
+namespace Garbuzivan\LaravelUserChat\Test;
 
 use PHPUnit\Framework\TestCase;
 
