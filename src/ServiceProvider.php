@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Garbuzivan\LaravelUserChat;
 
+use Garbuzivan\LaravelUserChat\Interfaces\ChatRoomInterface;
+use Garbuzivan\LaravelUserChat\Models\ChatRoom;
+
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     /**
@@ -16,10 +19,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $configPath = $this->configPath();
 
         $this->publishes([
-            $configPath . '/config.php' => $this->publishPath('garbuzivan-laravel-user-chat.php'),
+            $configPath . '/config.php' => $this->publishPath(ChatConfig::CONFIG_NAME . '.php'),
         ], 'config');
 
-        $this->loadMigrationsFrom(__DIR__ . '/../migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
     /**
@@ -29,9 +32,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function register()
     {
-//        $this->app->singleton(Config::class, function ($app) {
-//            return new Config;
-//        });
+        $this->app->bind(
+            ChatRoomInterface::class,
+            config(ChatConfig::CONFIG_NAME . '.room', ChatRoom::class)
+        );
+        $this->app->singleton(ChatManager::class);
     }
 
     /**
@@ -44,6 +49,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
     /**
      * @param $configFile
+     *
      * @return string
      */
     protected function publishPath($configFile): string

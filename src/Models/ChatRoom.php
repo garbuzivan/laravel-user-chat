@@ -4,28 +4,22 @@ declare(strict_types=1);
 
 namespace Garbuzivan\LaravelUserChat\Models;
 
+use Garbuzivan\LaravelUserChat\Interfaces\ChatRoomInterface;
+use Garbuzivan\LaravelUserChat\Traits\ChatRoomTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Chatrooms extends Model
+class ChatRoom extends Model implements ChatRoomInterface
 {
-    use HasFactory;
+    use HasFactory, ChatRoomTrait;
 
     protected $table = 'chat_rooms';
 
     /**
      * @var array
      */
-    protected $fillable = [ 
-		'title',
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [ 
+    protected $fillable = [
+        'name',
     ];
 
     /**
@@ -33,9 +27,9 @@ class Chatrooms extends Model
      *
      * @var array
      */
-    protected $casts = [ 
-		'id' => 'integer',
-		'title' => 'string',
+    protected $casts = [
+        'id'   => 'integer',
+        'name' => 'string',
     ];
 
     /**
@@ -43,8 +37,7 @@ class Chatrooms extends Model
      *
      * @var array
      */
-    public static $rules = [ 
-		'title' => 'required',
+    public static $rules = [
+        'name' => 'required',
     ];
-    
 }
