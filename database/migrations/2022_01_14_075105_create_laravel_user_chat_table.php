@@ -47,6 +47,7 @@ class CreateLaravelUserChatTable extends Migration
                 ->comment('Текстовое сообщение');
             $table->longText('data_json')->nullable()
                 ->comment('json параметры для вывода дополнительных данных');
+            $table->integer('drop_message_id')->default(0)->comment('ID сообщения для удаления, если type == 2');
             $table->index('room_type');
             $table->index('room_id');
             $table->index('room_user_id');

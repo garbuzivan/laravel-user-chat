@@ -104,10 +104,44 @@ class ChatRoomManager
                 break;
             }
         }
-        if (is_null($this->user)) {
-            throw new UserIsNotInChatRoom();
-        }
+        $this->isUserExist();
         return $this;
+    }
+
+    /**
+     * Получить данные комнаты чата
+     *
+     * @return object
+     * @throws ChatRoomNotLoad
+     */
+    public function getRoomInfo(): object
+    {
+        $this->isLoadRoom();
+        return $this->room;
+    }
+
+    /**
+     * Получить список пользователей комнаты чата
+     *
+     * @return Collection
+     * @throws ChatRoomNotLoad
+     */
+    public function getRoomUsers(): Collection
+    {
+        $this->isLoadRoom();
+        return $this->members;
+    }
+
+    /**
+     * Получить данные текущего пользователя комнаты чата
+     *
+     * @return object
+     * @throws ChatRoomNotLoad
+     */
+    public function getRoomUser(): object
+    {
+        $this->isLoadRoom();
+        return $this->user;
     }
 
     /**
@@ -130,5 +164,34 @@ class ChatRoomManager
         if (is_null($this->room)) {
             throw new ChatRoomNotLoad();
         }
+    }
+
+    /**
+     * Если пользователе нет в комнате чата
+     *
+     * @throws UserIsNotInChatRoom
+     */
+    protected function isUserExist(): void
+    {
+        if (is_null($this->user)) {
+            throw new UserIsNotInChatRoom();
+        }
+    }
+
+    /**
+     * Добавление нового комментария в комнату чата
+     *
+     * @param string|null $text - текст сообщения
+     * @param array  $data_json - массив с дополнительными данными, как прикрепленные изображения
+     * @param int    $type - тип сообщения
+     *
+     * @return ChatRoomManager
+     * @throws UserIsNotInChatRoom
+     */
+    public function messageAdd(?string $text = null, array $data_json = [], int $type = 0): self
+    {
+        $this->isUserExist();
+
+        return $this;
     }
 }
