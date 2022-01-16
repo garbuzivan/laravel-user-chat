@@ -23,6 +23,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         ], 'config');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        include __DIR__ . '/channels.php';
     }
 
     /**

@@ -11,6 +11,7 @@ return [
 
     /**
      * Использование вебсокета с событиями по чатам
+     * Работает только с App/Models/User
      */
     'websocket_enable'        => true,
 

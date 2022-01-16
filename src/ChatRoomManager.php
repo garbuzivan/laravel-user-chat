@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Garbuzivan\LaravelUserChat;
 
 use Carbon\Carbon;
+use Garbuzivan\LaravelUserChat\Events\ChatRoomDeleteMassageEvent;
+use Garbuzivan\LaravelUserChat\Events\ChatRoomNewMassageEvent;
 use Garbuzivan\LaravelUserChat\Exceptions\ChatRoomNotLoad;
 use Garbuzivan\LaravelUserChat\Exceptions\ChatRoomUserNotExists;
 use Garbuzivan\LaravelUserChat\Exceptions\NotChmodAddMessage;
 use Garbuzivan\LaravelUserChat\Exceptions\NotChmodDeleteMessage;
-use Garbuzivan\LaravelUserChat\Exceptions\NotChmodEditMessage;
 use Garbuzivan\LaravelUserChat\Exceptions\UserIsNotInChatRoom;
 use Garbuzivan\LaravelUserChat\Interfaces\ChatRoomInterface;
 use Garbuzivan\LaravelUserChat\Models\ChatMessage;
@@ -213,7 +214,7 @@ class ChatRoomManager
         $data = new MessagePipeline($newMessage, $this);
         $data = app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageAdd())->thenReturn();
         if (ChatConfig::isWebsocket()) {
-            // если сокеты
+            event(new ChatRoomNewMassageEvent($data));
         }
         return $this;
     }
@@ -245,7 +246,7 @@ class ChatRoomManager
         $data = new MessagePipeline($message, $this);
         $data = app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageDelete())->thenReturn();
         if (ChatConfig::isWebsocket()) {
-            // если сокеты
+            event(new ChatRoomDeleteMassageEvent($messageID, $this->user));
         }
         return $this;
     }

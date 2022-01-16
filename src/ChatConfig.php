@@ -23,6 +23,7 @@ class ChatConfig
 
     /**
      * Проверка включения вебсокета и событий
+     * PS сокеты работают только для App/Models/User
      *
      * @return bool
      */
