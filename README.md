@@ -27,7 +27,15 @@ Interface laravel user chat
 ]
 </pre>
 
-## Пример загрузки чата для диалога
+## Пример добавления новой комнаты чата + добавления участников чата
+
+<pre>
+$chatManager = app(\Garbuzivan\LaravelUserChat\ChatManager::class);
+$users = User::take(5)->inRandomOrder()->get();
+$chatManager->roomCreate('test')->roomMembersAdd($users);
+</pre>
+
+## Пример загрузки данных о комнате чата
 
 <pre>
 $chatRoom = app(\Garbuzivan\LaravelUserChat\ChatRoomManager::class);
@@ -45,3 +53,11 @@ try {
 }
 </pre>
 
+## Пример получения всех чатов пользователя
+
+<pre>
+$user = Auth::user();
+$chatManager = app(\Garbuzivan\LaravelUserChat\ChatManager::class);
+$projectId = 0; // 0 == все проекты, >0 - чаты конкретного проекта
+$userRooms = $chatManager->getChatRoomsUser($user, $projectId);
+</pre>

@@ -250,18 +250,57 @@ class ChatManager
      * @param object $user      - объект пользователя
      * @param int    $projectID - ID проекта, 0 == все
      *
-     * @return Collection|null
+     * @return Collection
      */
-    public function getChatRoomUser(object $user, int $projectID = 0): ?Collection
+    public function getChatRoomsUser(object $user, int $projectID = 0): Collection
     {
         $rooms = ChatRoomUser::where('user_type', get_class($user))->where('user_id', $user->id)->with('room');
         if (!is_null($projectID)) {
             $rooms = $rooms->where('project_id', $projectID);
         }
         $rooms = $rooms->get();
+        return $this->getDataRoomsForUser($rooms);
+    }
+
+    /**
+     * Получить список чат-комнат пользователя c непрочитанными сообщениями
+     *
+     * @param object $user      - объект пользователя
+     * @param int    $projectID - ID проекта, 0 == все
+     *
+     * @return Collection
+     */
+    public function getChatRoomsUserNotRead(object $user, int $projectID = 0): Collection
+    {
+        $rooms = ChatRoomUser::where('user_type', get_class($user))
+            ->whereRaw("'last_read_message_id' < 'last_message_id'")
+            ->where('user_id', $user->id)
+            ->with('room');
+        if (!is_null($projectID)) {
+            $rooms = $rooms->where('project_id', $projectID);
+        }
+        $rooms = $rooms->get();
+        return $this->getDataRoomsForUser($rooms);
+    }
+
+    /**
+     * Получаем данные комнаты из коллекции ChatRoomUser
+     *
+     * @param Collection|null $rooms
+     *
+     * @return Collection
+     */
+    protected function getDataRoomsForUser(?Collection $rooms): Collection
+    {
         $data = app(Collection::class);
+        if (is_null($rooms)) {
+            return $data;
+        }
         foreach ($rooms as $chat) {
-            $data->push($chat->room()->first());
+            $room = $chat->room()->first();
+            if (is_object($room)) {
+                $data->push($room);
+            }
         }
         return $data;
     }
