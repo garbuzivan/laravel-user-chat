@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Garbuzivan\LaravelUserChat;
 
+use Carbon\Carbon;
 use Garbuzivan\LaravelUserChat\Exceptions\ChatRoomNotLoad;
 use Garbuzivan\LaravelUserChat\Exceptions\ChatRoomUserNotExists;
+use Garbuzivan\LaravelUserChat\Exceptions\NotChmodAddMessage;
+use Garbuzivan\LaravelUserChat\Exceptions\NotChmodDeleteMessage;
+use Garbuzivan\LaravelUserChat\Exceptions\NotChmodEditMessage;
 use Garbuzivan\LaravelUserChat\Exceptions\UserIsNotInChatRoom;
 use Garbuzivan\LaravelUserChat\Interfaces\ChatRoomInterface;
 use Garbuzivan\LaravelUserChat\Models\ChatMessage;
+use Garbuzivan\LaravelUserChat\Models\ChatRoomUser;
 use Garbuzivan\LaravelUserChat\Pipeline\MessagePipeline;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pipeline\Pipeline;
@@ -188,11 +193,15 @@ class ChatRoomManager
      * @param array       $dataJson - массив с дополнительными данными, как прикрепленные изображения
      *
      * @return ChatRoomManager
-     * @throws UserIsNotInChatRoom
+     * @throws UserIsNotInChatRoom|NotChmodAddMessage
      */
     public function messageAdd(?string $message = null, array $dataJson = []): self
     {
         $this->isUserExist();
+        // Проверяем права на добавление
+        if (!in_array($this->user->chat_room['status'], ChatConfig::getChmodMessageAdd())) {
+            throw new NotChmodAddMessage();
+        }
         $newMessage = ChatMessage::create([
             'type'         => 0, // ChatConfig::MESSAGE_TYPE[0]
             'room_type'    => get_class($this->room),
@@ -203,9 +212,93 @@ class ChatRoomManager
         ]);
         $data = new MessagePipeline($newMessage, $this);
         $data = app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageAdd())->thenReturn();
-        if(ChatConfig::isWebsocket()){
+        if (ChatConfig::isWebsocket()) {
             // если сокеты
         }
+        return $this;
+    }
+
+    /**
+     * Удаление комментария в комнате чата
+     *
+     * @param int $messageID
+     *
+     * @return ChatRoomManager
+     * @throws UserIsNotInChatRoom|NotChmodDeleteMessage
+     */
+    public function messageDelete(int $messageID): self
+    {
+        $this->isUserExist();
+        // Проверяем права на удаление
+        if (!in_array($this->user->chat_room['status'], ChatConfig::getChmodMessageDelete())) {
+            throw new NotChmodDeleteMessage();
+        }
+        ChatMessage::where('id', $messageID)->update(['active' => 0]);
+        $message = ChatMessage::where('room_type', get_class($this->room))
+            ->where('room_id', $this->room->id)
+            ->where('active', 1)
+            ->orderByDesc('id')
+            ->first();
+        if (is_null($message)) {
+            $message = ChatMessage::where('id', $messageID)->first();
+        }
+        $data = new MessagePipeline($message, $this);
+        $data = app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageDelete())->thenReturn();
+        if (ChatConfig::isWebsocket()) {
+            // если сокеты
+        }
+        return $this;
+    }
+
+    /**
+     * Получить список сообщений в комнате чата
+     *
+     * @param int $page
+     * @param int $limit
+     *
+     * @return mixed
+     */
+    public function getMessageList(int $page = 1, int $limit = 100)
+    {
+        return ChatMessage::where('room_type', get_class($this->room))
+            ->where('room_id', $this->room->id)
+            ->where('active', 1)
+            ->orderByDesc('id')
+            ->paginate($limit, ['*'], '', $page);
+    }
+
+    /**
+     * Получить список непрочитанных сообщений в комнате чата
+     *
+     * @param int $page
+     * @param int $limit
+     *
+     * @return mixed
+     */
+    public function getMessageListNoRead(int $page = 1, int $limit = 100)
+    {
+        return ChatMessage::where('room_type', get_class($this->room))
+            ->where('id', '>', $this->user->chat_room['last_read_message_id'])
+            ->where('room_id', $this->room->id)
+            ->where('active', 1)
+            ->orderByDesc('id')
+            ->paginate($limit, ['*'], '', $page);
+    }
+
+    /**
+     * Отметить сообщение прочитанным
+     *
+     * @param int $messageId
+     *
+     * @return mixed
+     */
+    public function messageRead(int $messageId): self
+    {
+        ChatRoomUser::where('id', $this->user->chat_room['id'])
+            ->update([
+                'last_read_message_id' => $messageId,
+                'last_read_datetime'   => Carbon::now()->toDateTime(),
+            ]);
         return $this;
     }
 }

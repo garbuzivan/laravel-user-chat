@@ -52,17 +52,30 @@ class ChatConfig
     public static function getPipelineMessageDelete(): array
     {
         $arr = config(ChatConfig::CONFIG_NAME . 'pipeline_message_delete');
-        return is_array($arr) ? $arr : [];
+        $standard = [UpdateLastMessage::class];
+        $arr = is_array($arr) ? $arr : [];
+        return array_merge($arr, $standard);
     }
 
     /**
-     * Pipelines добавления сообщений
+     * Статус пользователей, которым позволено добавление сообщений в комнате чата
      *
      * @return array
      */
-    public static function getPipelineMessageEdit(): array
+    public static function getChmodMessageAdd(): array
     {
-        $arr = config(ChatConfig::CONFIG_NAME . 'pipeline_message_edit');
-        return is_array($arr) ? $arr : [];
+        $arr = config(ChatConfig::CONFIG_NAME . 'chmod_message_add');
+        return is_array($arr) ? $arr : [0, 1, 2];
+    }
+
+    /**
+     * Статус пользователей, которым позволено удаление сообщений в комнате чата
+     *
+     * @return array
+     */
+    public static function getChmodMessageDelete(): array
+    {
+        $arr = config(ChatConfig::CONFIG_NAME . 'chmod_message_delete');
+        return is_array($arr) ? $arr : [1, 2];
     }
 }

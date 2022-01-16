@@ -35,6 +35,15 @@ $users = User::take(5)->inRandomOrder()->get();
 $chatManager->roomCreate('test')->roomMembersAdd($users);
 </pre>
 
+## Пример получения всех чатов пользователя
+
+<pre>
+$user = Auth::user();
+$chatManager = app(\Garbuzivan\LaravelUserChat\ChatManager::class);
+$projectId = 0; // 0 == все проекты, >0 - чаты конкретного проекта
+$userRooms = $chatManager->getChatRoomsUser($user, $projectId);
+</pre>
+
 ## Пример загрузки данных о комнате чата
 
 <pre>
@@ -53,11 +62,35 @@ try {
 }
 </pre>
 
-## Пример получения всех чатов пользователя
+
+## Пример добавления сообщения
 
 <pre>
-$user = Auth::user();
-$chatManager = app(\Garbuzivan\LaravelUserChat\ChatManager::class);
-$projectId = 0; // 0 == все проекты, >0 - чаты конкретного проекта
-$userRooms = $chatManager->getChatRoomsUser($user, $projectId);
+$room->messageAdd('Тестовое сообщение');
 </pre>
+
+
+## Пример установки последнего прочитаннного сообщения
+
+<pre>
+$room->messageRead($idMessageRead);
+</pre>
+
+
+## Получить список сообщений комнаты чата
+
+<pre>
+$currentPage = 1;
+$perPage = 100;
+$room->getMessageList($currentPage, $perPage);
+</pre>
+
+
+## Получить список непрочитанных сообщений комнаты чата
+
+<pre>
+$currentPage = 1;
+$perPage = 100;
+$room->getMessageListNoRead($currentPage, $perPage);
+</pre>
+
