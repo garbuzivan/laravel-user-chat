@@ -19,6 +19,7 @@ class CreateLaravelUserChatTable extends Migration
             $table->id();
             $table->text('name')->nullable();
             $table->integer('status')->default(0);
+            $table->integer('project_id')->default(0)->comment('ID проекта');
             $table->timestamps();
         });
         Schema::create('chat_room_users', function (Blueprint $table) {
@@ -30,6 +31,7 @@ class CreateLaravelUserChatTable extends Migration
             $table->dateTimeTz('last_read_datetime')->nullable()->comment('Время последнего чтения чата');
             $table->integer('last_message_id')->default(0)->comment('Последний комментарий в чате');
             $table->dateTimeTz('last_message_datetime')->nullable()->comment('Время последнего комментария в чате');
+            $table->integer('project_id')->default(0)->comment('ID проекта');
             $table->index('room_type');
             $table->index('room_id');
             $table->index('user_type');

@@ -38,12 +38,13 @@ class ChatManager
      * Создание комнаты по названию
      *
      * @param string $name
+     * @param int    $projectID - ID проекта
      *
      * @return ChatManager
      */
-    public function roomCreate(string $name): self
+    public function roomCreate(string $name, $projectID = 0): self
     {
-        $this->objectRoom = $this->chatRoom->roomCreate($name);
+        $this->objectRoom = $this->chatRoom->roomCreate($name, $projectID);
         return $this;
     }
 
@@ -241,5 +242,27 @@ class ChatManager
                 ->update(['status' => $status]);
         }
         return $this;
+    }
+
+    /**
+     * Получить список чат-комнат пользователя
+     *
+     * @param object $user      - объект пользователя
+     * @param int    $projectID - ID проекта, 0 == все
+     *
+     * @return Collection|null
+     */
+    public function getChatRoomUser(object $user, int $projectID = 0): ?Collection
+    {
+        $rooms = ChatRoomUser::where('user_type', get_class($user))->where('user_id', $user->id)->with('room');
+        if (!is_null($projectID)) {
+            $rooms = $rooms->where('project_id', $projectID);
+        }
+        $rooms = $rooms->get();
+        $data = app(Collection::class);
+        foreach ($rooms as $chat) {
+            $data->push($chat->room()->first());
+        }
+        return $data;
     }
 }

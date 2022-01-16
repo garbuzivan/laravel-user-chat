@@ -20,6 +20,7 @@ class ChatRoom extends Model implements ChatRoomInterface
      */
     protected $fillable = [
         'name',
+        'project_id',
     ];
 
     /**
@@ -29,6 +30,7 @@ class ChatRoom extends Model implements ChatRoomInterface
      */
     protected $casts = [
         'id'   => 'integer',
+        'project_id'   => 'integer',
         'name' => 'string',
     ];
 

@@ -14,12 +14,13 @@ trait ChatRoomTrait
      * Создание комнаты по названию
      *
      * @param string $name
+     * @param int    $projectID
      *
      * @return ChatRoomInterface
      */
-    public function roomCreate(string $name): ChatRoomInterface
+    public function roomCreate(string $name, $projectID = 0): ChatRoomInterface
     {
-        return self::create(['name' => $name]);
+        return self::create(['name' => $name, 'project_id' => $projectID]);
     }
 
     /**

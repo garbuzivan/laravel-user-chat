@@ -27,6 +27,7 @@ class ChatRoomUser extends Model
         'last_read_message_id',
         'last_read_datetime',
         'last_visit',
+        'project_id',
     ];
 
     /**
@@ -44,6 +45,7 @@ class ChatRoomUser extends Model
         'last_read_datetime'    => 'datetime',
         'last_message_id'       => 'integer',
         'last_message_datetime' => 'datetime',
+        'project_id'               => 'integer',
     ];
 
     /**
