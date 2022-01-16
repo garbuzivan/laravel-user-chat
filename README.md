@@ -26,3 +26,22 @@ Interface laravel user chat
     }
 ]
 </pre>
+
+## Пример загрузки чата для диалога
+
+<pre>
+$chatRoom = app(\Garbuzivan\LaravelUserChat\ChatRoomManager::class);
+try {
+    $room = $chatRoom->setRoomById(4)->setUser(Auth::user());
+} catch (ChatRoomNotLoad $e) {
+    echo 'Комната чата не найдена';
+    exit();
+} catch (ChatRoomUserNotExists $e) {
+    echo 'В setUser не передан объект пользователя';
+    exit();
+} catch (UserIsNotInChatRoom $e) {
+    echo 'Пользователь не имеет доступ к текущей комнате чата';
+    exit();
+}
+</pre>
+

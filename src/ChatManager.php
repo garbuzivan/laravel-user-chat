@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Garbuzivan\LaravelUserChat;
 
+use Garbuzivan\LaravelUserChat\Exceptions\ChatRoomNotLoad;
 use Garbuzivan\LaravelUserChat\Interfaces\ChatRoomInterface;
 use Garbuzivan\LaravelUserChat\Models\ChatRoomUser;
 use Garbuzivan\LaravelUserChat\Resources\UserResource;
@@ -13,12 +14,14 @@ class ChatManager
 {
     /**
      * Модель для работы с комнатами
+     *
      * @var ChatRoomInterface
      */
     protected ChatRoomInterface $chatRoom;
 
     /**
      * Объект комнаты чата с которой работаем
+     *
      * @var ChatRoomInterface|null
      */
     protected ?ChatRoomInterface $objectRoom = null;
@@ -55,6 +58,20 @@ class ChatManager
     {
         $this->objectRoom = $this->chatRoom->getRoomById($roomId);
         return $this;
+    }
+
+    /**
+     * Получить текущий загруженный чат
+     *
+     * @return ChatRoomInterface
+     * @throws ChatRoomNotLoad
+     */
+    public function getRoom(): ChatRoomInterface
+    {
+        if (is_null($this->objectRoom)) {
+            throw new ChatRoomNotLoad();
+        }
+        return $this->objectRoom;
     }
 
     /**
@@ -202,6 +219,26 @@ class ChatManager
                 ->where('user_type', $userType)
                 ->whereIn('user_id', $ids)
                 ->delete();
+        }
+        return $this;
+    }
+
+    /**
+     * Изменить статус пользователя в группе
+     *
+     * @param mixed $user
+     * @param int   $status
+     *
+     * @return ChatManager
+     */
+    public function roomUserSetStatus(mixed $user, int $status = 0): self
+    {
+        if ($this->objectRoom instanceof ChatRoomInterface && !empty($user->id)) {
+            ChatRoomUser::where('room_type', get_class($this->objectRoom))
+                ->where('room_id', $this->objectRoom->id)
+                ->where('user_type', get_class($user))
+                ->whereIn('user_id', $user->id)
+                ->update(['status' => $status]);
         }
         return $this;
     }

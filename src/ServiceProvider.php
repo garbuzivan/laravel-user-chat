@@ -36,7 +36,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             ChatRoomInterface::class,
             config(ChatConfig::CONFIG_NAME . '.room', ChatRoom::class)
         );
-        $this->app->singleton(ChatManager::class);
+        $this->app->bind(ChatRoomManager::class);
+        $this->app->bind(ChatManager::class);
     }
 
     /**
