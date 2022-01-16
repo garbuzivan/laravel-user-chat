@@ -23,8 +23,9 @@ class ChatMessage extends Model
         'room_type',
         'room_id',
         'room_user_id',
-        'messages',
+        'message',
         'data_json',
+        'active',
     ];
 
     /**
@@ -36,8 +37,9 @@ class ChatMessage extends Model
         'room_id'      => 'integer',
         'room_type'    => 'string',
         'room_user_id' => 'integer',
-        'messages'     => 'string',
+        'message'      => 'string',
         'data_json'    => 'json',
+        'active'       => 'integer',
     ];
 
     /**
@@ -72,21 +74,22 @@ class ChatMessage extends Model
     }
 
     /**
-     * @param string $value
+     * @param string|null $value
      *
      * @return array
      */
-    public function getDataJsonAttribute(string $value): array
+    public function getDataJsonAttribute(?string $value): array
     {
-        return json_decode($value, true);
+        $arr = is_null($value) ? [] : json_decode($value, true);
+        return is_array($arr) ? $arr : [];
     }
 
     /**
-     * @param array $value
+     * @param array|null $value
      *
-     * @return string
+     * @return string|null
      */
-    public function setDataJsonAttribute(array $value): string
+    public function setDataJsonAttribute(?array $value): ?string
     {
         return json_encode($value);
     }

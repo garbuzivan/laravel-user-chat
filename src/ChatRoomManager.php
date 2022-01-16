@@ -8,7 +8,10 @@ use Garbuzivan\LaravelUserChat\Exceptions\ChatRoomNotLoad;
 use Garbuzivan\LaravelUserChat\Exceptions\ChatRoomUserNotExists;
 use Garbuzivan\LaravelUserChat\Exceptions\UserIsNotInChatRoom;
 use Garbuzivan\LaravelUserChat\Interfaces\ChatRoomInterface;
+use Garbuzivan\LaravelUserChat\Models\ChatMessage;
+use Garbuzivan\LaravelUserChat\Pipeline\MessagePipeline;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pipeline\Pipeline;
 
 class ChatRoomManager
 {
@@ -167,7 +170,7 @@ class ChatRoomManager
     }
 
     /**
-     * Если пользователе нет в комнате чата
+     * Если пользователя нет в комнате чата
      *
      * @throws UserIsNotInChatRoom
      */
@@ -181,17 +184,28 @@ class ChatRoomManager
     /**
      * Добавление нового комментария в комнату чата
      *
-     * @param string|null $text - текст сообщения
-     * @param array  $data_json - массив с дополнительными данными, как прикрепленные изображения
-     * @param int    $type - тип сообщения
+     * @param string|null $message  - текст сообщения
+     * @param array       $dataJson - массив с дополнительными данными, как прикрепленные изображения
      *
      * @return ChatRoomManager
      * @throws UserIsNotInChatRoom
      */
-    public function messageAdd(?string $text = null, array $data_json = [], int $type = 0): self
+    public function messageAdd(?string $message = null, array $dataJson = []): self
     {
         $this->isUserExist();
-
+        $newMessage = ChatMessage::create([
+            'type'         => 0, // ChatConfig::MESSAGE_TYPE[0]
+            'room_type'    => get_class($this->room),
+            'room_id'      => $this->room->id,
+            'room_user_id' => $this->user->chat_room['id'],
+            'message'      => $message,
+            'data_json'    => $dataJson,
+        ]);
+        $data = new MessagePipeline($newMessage, $this);
+        $data = app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageAdd())->thenReturn();
+        if(ChatConfig::isWebsocket()){
+            // если сокеты
+        }
         return $this;
     }
 }

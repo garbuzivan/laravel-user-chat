@@ -43,11 +43,12 @@ class CreateLaravelUserChatTable extends Migration
                 ->comment('Тип сообщения');
             $table->morphs('room');
             $table->integer('room_user_id')->references('id')->on('chat_room_users');
-            $table->longText('messages')->nullable()
+            $table->longText('message')->nullable()
                 ->comment('Текстовое сообщение');
             $table->longText('data_json')->nullable()
                 ->comment('json параметры для вывода дополнительных данных');
             $table->integer('drop_message_id')->default(0)->comment('ID сообщения для удаления, если type == 2');
+            $table->integer('active')->default(1)->comment('Актуальность сообщения');
             $table->index('room_type');
             $table->index('room_id');
             $table->index('room_user_id');
