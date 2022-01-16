@@ -32,7 +32,8 @@ Interface laravel user chat
 <pre>
 $chatManager = app(\Garbuzivan\LaravelUserChat\ChatManager::class);
 $users = User::take(5)->inRandomOrder()->get();
-$chatManager->roomCreate('test')->roomMembersAdd($users);
+$projectID = 1;
+$chatManager->roomCreate('test', $projectID)->roomMembersAdd($users);
 </pre>
 
 ## Пример получения всех чатов пользователя
@@ -92,5 +93,12 @@ $room->getMessageList($currentPage, $perPage);
 $currentPage = 1;
 $perPage = 100;
 $room->getMessageListNoRead($currentPage, $perPage);
+</pre>
+
+
+## Удалить сообщение из комнаты чата
+
+<pre>
+$room->messageDelete($messageID);
 </pre>
 
