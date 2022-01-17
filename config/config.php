@@ -26,11 +26,6 @@ return [
     'pipeline_message_delete' => [],
 
     /**
-     * Pipeline редактирования сообщений
-     */
-    'pipeline_message_edit'   => [],
-
-    /**
      * Статус пользователей, которым позволено добавление сообщений в комнате чата
      */
     'chmod_message_add'       => [0, 1, 2],
