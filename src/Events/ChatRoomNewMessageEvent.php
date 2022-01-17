@@ -28,11 +28,10 @@ class ChatRoomNewMessageEvent implements ShouldBroadcast
      * Create a new event instance.
      *
      * @return void
-     * @throws ChatRoomNotLoad
      */
-    public function __construct(MessagePipeline $data)
+    public function __construct(MessagePipeline $data, object $user)
     {
-        $this->user = $data->manager->getRoomUser()->toArray();
+        $this->user = $user->toArray();
         $this->message = $data->message;
     }
 
@@ -43,6 +42,6 @@ class ChatRoomNewMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel(ChatManagerChannel::NAME . '.' . $this->user->id);
+        return new PrivateChannel(ChatManagerChannel::NAME . '.' . $this->user['id']);
     }
 }

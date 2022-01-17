@@ -107,9 +107,10 @@ class ChatRoomManager
         }
         $type = get_class($user);
         $id = $user->id;
-        foreach ($this->members as $member) {
+        foreach ($this->members as $memberKey => $member) {
             if ($member->id == $id && get_class($member) == $type) {
                 $this->user = $member;
+                $this->members->forget($memberKey);
                 break;
             }
         }
@@ -214,7 +215,9 @@ class ChatRoomManager
         $data = new MessagePipeline($newMessage, $this);
         $data = app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageAdd())->thenReturn();
         if (ChatConfig::isWebsocket()) {
-            event(new ChatRoomNewMessageEvent($data));
+            foreach ($this->members as $member) {
+                event(new ChatRoomNewMessageEvent($data, $member));
+            }
         }
         return $this;
     }
@@ -244,9 +247,11 @@ class ChatRoomManager
             $message = ChatMessage::where('id', $messageID)->first();
         }
         $data = new MessagePipeline($message, $this);
-        $data = app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageDelete())->thenReturn();
+        app(Pipeline::class)->send($data)->through(ChatConfig::getPipelineMessageDelete())->thenReturn();
         if (ChatConfig::isWebsocket()) {
-            event(new ChatRoomDeleteMassageEvent($messageID, $this->user));
+            foreach ($this->members as $member) {
+                event(new ChatRoomDeleteMassageEvent($messageID, $member));
+            }
         }
         return $this;
     }

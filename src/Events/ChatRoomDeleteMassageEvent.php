@@ -39,6 +39,6 @@ class ChatRoomDeleteMassageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel(ChatManagerChannel::NAME . '.' . $this->user->id);
+        return new PrivateChannel(ChatManagerChannel::NAME . '.' . $this->user['id']);
     }
 }
