@@ -32,7 +32,7 @@ class ChatRoomNewMassageEvent implements ShouldBroadcast
      */
     public function __construct(MessagePipeline $data)
     {
-        $this->user = $data->manager->getRoomUser();
+        $this->user = $data->manager->getRoomUser()->toArray();
         $this->message = $data->message;
     }
 

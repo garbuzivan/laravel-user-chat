@@ -29,7 +29,7 @@ class ChatRoomDeleteMassageEvent implements ShouldBroadcast
     public function __construct(int $deleteMessageID, object $user)
     {
         $this->deleteMessageID = $deleteMessageID;
-        $this->user = $user;
+        $this->user = $user->toArray();
     }
 
     /**
