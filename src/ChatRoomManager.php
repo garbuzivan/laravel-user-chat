@@ -287,7 +287,7 @@ class ChatRoomManager
             ->where('id', '>', $this->user->chat_room['last_read_message_id'])
             ->where('room_id', $this->room->id)
             ->where('active', 1)
-            ->orderByDesc('id')
+            ->orderBy('id')
             ->paginate($limit, ['*'], '', $page);
     }
 
